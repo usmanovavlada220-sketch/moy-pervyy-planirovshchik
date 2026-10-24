@@ -480,3 +480,12 @@
 панель при 1024 и 390 px, Escape, aria-expanded, отсутствие ошибок JavaScript.
 Тест: /tmp/planning-spec-audit/calendar-toggle.cjs.
 ТЗ, инструкция и комплект обновлены. Safari этой итерацией не проверен.
+
+
+### 24 октября 2026 года - публикация на GitHub
+
+По запросу создан публичный репозиторий usmanovavlada220-sketch/moy-pervyy-planirovshchik.
+Загружены три файла приложения и документация. Ярлыки VS Code исключены.
+Настроен GitHub Pages: deploy from a branch, main, корневая папка.
+README дополнен онлайн-адресом и переносом данных через резервную копию.
+Данные localStorage не публикуются, личные резервные копии не загружались.
