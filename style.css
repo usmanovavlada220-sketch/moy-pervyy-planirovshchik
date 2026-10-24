@@ -182,3 +182,4 @@ body :is(p,li,label,input,select,textarea,button,summary,.deadline-badge,.priori
 #meetings-open{display:inline-block;margin:0 0 16px}
 @media(min-width:1200px){body.meetings-collapsed:not(.compact-meetings) .planner-layout{grid-template-columns:minmax(0,1fr)}body.meetings-collapsed:not(.compact-meetings) .planner-layout>.meetings-panel{display:none}}
 body.compact-meetings #meetings-open{display:none}
+.quarter-export{display:flex;flex-wrap:wrap;gap:12px}.quarter-list{margin-top:0}.quarter-list summary{font-size:18px;min-height:36px}.quarter-list .report-result{padding:16px 0}.quarter-list .report-description{white-space:pre-wrap}.quarter-list .card-meta{display:block;margin-top:8px}
