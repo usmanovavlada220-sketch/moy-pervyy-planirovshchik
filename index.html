@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Planning</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="sidebar">
+    <a class="brand" href="#" id="home"><span class="brand-mark" aria-hidden="true">▦</span><span>Planning<span class="brand-caption" hidden></span></span></a>
+    <div class="boards-bar"><div class="boards-heading"><span>Доски</span><button id="board-create" class="icon-button" aria-label="Создать доску">+</button></div>
+    <div id="board-list" class="board-list"></div><button id="background-open" class="secondary">Фон доски</button></div>
+    <nav aria-label="Разделы">
+      <button class="nav-item selected" id="nav-board"><span aria-hidden="true">▦</span> Доска задач</button>
+      <button class="nav-item" id="nav-archive"><span aria-hidden="true">✓</span> Архив <span class="nav-count" id="archive-count">0</span></button>
+      <button class="nav-item" id="nav-trash"><span aria-hidden="true">⌫</span> Корзина <span class="nav-count" id="trash-count">0</span></button>
+    </nav>
+    <div class="sidebar-bottom"><button id="settings-open" class="nav-item">⚙ Настройки</button><button id="help-open" class="nav-item">? Помощь</button>
+      <button class="nav-item" id="backup-open"><span aria-hidden="true">↥</span> Резервная копия</button>
+
+    </div>
+  </header>
+  <main>
+    <header class="topline"><div class="daily-phrase"><span id="daily-phrase"></span><button id="phrase-toggle" class="text-button" aria-label="Отключить фразу дня">×</button></div><span id="breadcrumb" hidden></span><span id="save-status" role="status">Проверяем сохранение…</span></header>
+    <div id="clock-alert" class="notice danger" hidden></div>
+    <div id="storage-alert" class="notice danger" hidden></div>
+    <section id="meeting-reminders" class="meeting-reminders" aria-label="Напоминания о встречах" aria-live="polite" hidden></section>
+    <button id="meetings-open" class="secondary">Встречи</button><div class="planner-layout">
+    <aside id="meetings-panel" class="meetings-panel" aria-label="Календарь встреч">
+      <div class="meeting-heading"><h2>Встречи</h2><button id="meeting-add" class="primary" aria-label="Добавить встречу">＋</button></div>
+      <button id="meeting-compact" class="text-button">Компактный режим</button>
+      <button id="meeting-return" class="secondary" hidden>Вернуться к планировщику</button>
+      <div id="meeting-calendar"><div class="calendar-nav"><button id="calendar-prev" class="icon-button" aria-label="Предыдущий месяц встреч">‹</button><strong id="calendar-title"></strong><button id="calendar-next" class="icon-button" aria-label="Следующий месяц встреч">›</button></div><div id="calendar-grid" class="calendar-grid"></div><button id="calendar-today" class="text-button">Сегодня</button></div>
+      <h3 id="meeting-list-title"></h3><div id="meeting-list"></div><button id="meeting-more" class="secondary" hidden>Показать ещё</button>
+      <details class="meeting-settings"><summary>Напоминания и звук</summary><label class="check-label"><input id="reminders-enabled" type="checkbox"> Напоминания</label><label class="check-label"><input id="sound-enabled" type="checkbox"> Звуковой сигнал</label><button id="sound-enable" class="secondary">Включить звук</button><button id="sound-test" class="text-button">Проверить звук</button><p id="sound-status" role="status"></p><p>Напоминания работают, пока страница открыта. После сна время проверяется заново.</p></details>
+    </aside><div class="planner-content">
+    <div class="workspace-heading"><section class="page-heading">
+      <div><div class="eyebrow" id="eyebrow" hidden>ФОКУС НА НЕДЕЛЮ</div><h1 id="page-title">Мои задачи</h1><strong id="week-title"></strong><p class="subtitle" id="subtitle" hidden>Рабочее и личное. Всё на своих местах.</p></div>
+      <button class="primary" id="add-task" aria-label="Новая задача" title="Новая задача">+</button>
+    </section>
+    <section class="board-toolbar" id="board-toolbar"><button id="mode-week" class="text-button" aria-pressed="true">Неделя</button><button id="mode-month" class="text-button" aria-pressed="false">Месяц</button><button id="mode-quarter" class="text-button" aria-pressed="false">Квартал</button><input id="period-picker" type="date" aria-label="Перейти к периоду" min="1900-01-01" max="2100-12-31">
+      <div class="week-switch"><button id="prev-week" class="icon-button" aria-label="Предыдущая неделя">‹</button><span id="week-caption" hidden></span><button id="next-week" class="icon-button" aria-label="Следующая неделя">›</button></div>
+      <button class="secondary" id="today">Текущая неделя</button>
+      <div class="legend" hidden><span><i class="work-dot"></i>Рабочее</span><span><i class="personal-dot"></i>Личное</span></div>
+    </section>
+    </div>
+    <section class="planning-tools" aria-label="Поиск и фильтры">
+      <button id="search-toggle" class="secondary" aria-expanded="false" aria-controls="search">Поиск</button><input id="search" type="search" placeholder="Поиск на доске" aria-label="Поиск по названию и описанию">
+      <select id="filter-type" aria-label="Тип задач"><option value="all">Все задачи</option><option value="work">Рабочие</option><option value="personal">Личные</option></select>
+      <label><input id="filter-urgent" type="checkbox"> Срочные</label><label><input id="filter-overdue" type="checkbox"> Просроченные</label><label><input id="filter-carry" type="checkbox"> С автопереносом</label>
+      <button id="reset-filters" class="text-button" hidden>Сбросить фильтры</button>
+      <div id="search-scopes" hidden><label><input id="search-trash" type="checkbox"> В корзине</label><label><input id="search-history" type="checkbox"> В прошлых сводках</label></div>
+    </section>
+    <div id="order-hint" class="filter-hint" hidden>Сбросьте фильтры, чтобы изменить порядок</div>
+    <form id="week-focus" class="week-focus"><input id="week-goal" maxlength="500" placeholder="Что главное на этой неделе?" aria-label="Добавить главное на неделю"><button id="goal-add" class="secondary" type="submit">Добавить</button></form>
+    <section id="week-progress" class="week-progress" aria-label="Выполнение недели"></section>
+    <section id="week-stats-panel" class="week-stats-panel"><button id="stats-toggle" class="text-button" aria-expanded="false" aria-controls="stats-content">▸ Статистика недели</button><div id="stats-content" hidden><section id="week-stats" class="week-stats" aria-label="Итоги недели"></section><p id="stats-hint" class="filter-hint" hidden>Итоги по выбранному типу задач, без дополнительных фильтров</p></div></section>
+    <section id="month-view" class="month-view" hidden></section>
+    <section id="search-results" class="search-results" aria-label="Результаты поиска" hidden></section>
+    <div id="past-notice" class="notice" hidden></div>
+    <section id="week-priorities" class="week-priorities" aria-label="Главное на этой неделе" hidden></section>
+    <nav id="mobile-statuses" aria-label="Статусы задач"></nav><section id="board" class="board" aria-label="Доска задач"></section>
+    <section id="week-history" class="week-history" hidden></section>
+    <section id="later-section" class="later-section"><div class="later-heading"><button id="later-toggle" aria-expanded="true"><span id="later-chevron">⌄</span> Позже <span id="later-count" class="count">0</span></button><button id="add-later" class="text-button">＋ Добавить</button></div><div id="later-list" class="later-list" data-drop="later"></div></section>
+    <section id="collection" class="collection" hidden></section>
+
+    </div></div>
+  </main>
+  <dialog id="meetings-drawer"><button id="meetings-close" class="secondary">Закрыть встречи</button></dialog><dialog id="settings-dialog" class="small-dialog settings-dialog"><header class="dialog-heading"><h2>Настройки</h2><button id="settings-close" class="icon-button" aria-label="Закрыть настройки">×</button></header><label>Тема<select id="setting-theme"><option value="auto">По времени суток</option><option value="light">Светлая</option><option value="dark">Тёмная</option><option value="system">Как в системе</option></select></label><label class="check-label"><input id="setting-shortcuts" type="checkbox"> Горячие клавиши</label><label>Палитра для настройки<select id="setting-palette"><option value="light">Светлая</option><option value="dark">Тёмная</option></select></label><p>Цвета и названия колонок общие для всех досок. Фон отдельной доски и вариант «графит» доступны в «фон доски».</p><div id="setting-colors"></div><h3>Названия колонок</h3><div id="setting-labels"></div><p id="settings-error" class="form-error" role="alert" hidden></p><p id="settings-status" role="status">Корректные изменения сохраняются сразу.</p><button id="settings-reset" class="danger-button">Сбросить оформление</button></dialog>
+  <dialog id="help-dialog" class="small-dialog help-dialog"><header class="dialog-heading"><h2>Как пользоваться</h2><button id="help-close" class="icon-button" aria-label="Закрыть помощь">×</button></header><p>Открывай index.html двойным щелчком. index.html, style.css и script.js должны лежать рядом. Интернет не нужен.</p><h3>Задачи и результаты</h3><p>Добавляй задачи кнопкой «+», перетаскивай за ручку или используй меню «•••». Завершённые задачи попадают в архив. Незавершённые автоматически переходят в текущую неделю при открытии планера. «Позже» - общий список без даты.</p><p>В месяце и квартале видны результаты. Для отчёта отмечай важные задачи и сохраняй заметки «итоги месяца». Прошлую сводку можно исправить отдельно от текущих карточек.</p><h3>Встречи</h3><p>Выбери дату в календаре и нажми «+» рядом со встречами. Напоминание появляется за 15 минут, пока страница открыта. После сна проверяется текущее время. Для звука нажми «включить звук», затем «проверить звук».</p><h3>Сохранение и передача</h3><p>Данные сохраняются в этом браузере на этом компьютере. Скачивай резервную копию регулярно и перед перемещением файлов, очисткой браузера или переходом в другой браузер. Импорт полностью заменяет данные. В приватном режиме сохранение после закрытия не гарантируется. Для другого человека передавай только файлы приложения, без своей резервной копии. На разных компьютерах данные независимы.</p><h3>Клавиши</h3><ul><li>N / Т - новая задача.</li><li>T / Е - текущая неделя.</li><li>/ - поиск.</li><li>← / → - предыдущий или следующий период.</li><li>Escape - закрыть диалог или меню, отменить перенос.</li></ul><p>Команды действуют вне полей, кнопок и диалогов. Стандартные команды ⌘N, ⌘F, ⌘R и другие сохранены. Клавиши приложения можно отключить в настройках.</p><h3>Оформление</h3><p>В настройках доступны тема, цвета и названия колонок. Автоматическая тема светлая с 07:00 до 20:00 по времени компьютера. «Фон доски» позволяет выбрать мягкий или графитовый вариант. Персональная палитра имеет приоритет над готовыми акцентами.</p></dialog>
+  <dialog id="meeting-editor" class="small-dialog"><form id="meeting-form" novalidate><header class="dialog-heading"><h2 id="meeting-editor-title">Новая встреча</h2><button type="button" id="meeting-close" class="icon-button" aria-label="Закрыть встречу">×</button></header><label>Название<input id="meeting-title" maxlength="200" required autocomplete="off"></label><div class="form-grid"><label>Дата<input id="meeting-date" type="date" min="1900-01-01" max="2100-12-31" required></label><label>Время<input id="meeting-time" type="time" required></label></div><p id="meeting-past" class="field-hint" hidden>Встреча в прошлом, напоминания не будет</p><p id="meeting-error" class="form-error" role="alert" hidden></p><footer class="dialog-actions"><button type="button" id="meeting-delete" class="danger-button" hidden>Удалить</button><button type="button" id="meeting-cancel" class="secondary">Отмена</button><button id="meeting-save" class="primary" type="submit">Сохранить</button></footer></form></dialog>
+  <dialog id="background-dialog" class="small-dialog"><header class="dialog-heading"><h2>Фон доски</h2><button id="background-close" class="icon-button" aria-label="Отменить выбор фона">×</button></header><label>Оформление<select id="board-appearance"><option value="soft">Мягкое · розовые акценты</option><option value="graphite">Графит · строгие акценты</option></select></label><div id="background-presets" class="background-presets"></div><div id="background-preview" class="background-preview" aria-label="Предпросмотр фона"><div class="appearance-sample"><span>Личное</span><strong>Мои планы</strong><i></i></div></div><div class="form-grid"><label>Первый цвет<input type="color" id="background-from"></label><label>Второй цвет<input type="color" id="background-to"></label></div><button id="background-reset" class="text-button">Исходный фон</button><p id="background-error" class="form-error" hidden role="alert"></p><div class="dialog-actions"><button id="background-cancel" class="secondary">Отмена</button><button id="background-save" class="primary">Применить</button></div></dialog>
+  <dialog id="history-editor" class="history-editor"><header class="dialog-heading"><h2>Исправить сводку</h2><button id="history-close" class="icon-button" aria-label="Отменить исправление">×</button></header>
+    <p id="history-period"></p><p>Изменения относятся только к прошлой сводке. Текущие карточки не меняются.</p>
+    <label>Главное на неделе · каждый пункт с новой строки<textarea id="history-goal" maxlength="10000" rows="4"></textarea></label>
+    <div id="history-rows"></div>
+    <div class="history-add"><select id="history-existing" aria-label="Добавить существующую задачу"></select><button id="history-add-existing" class="secondary">Добавить выбранную</button><button id="history-add-new" class="secondary">Добавить историческую запись</button></div>
+    <p id="history-error" class="form-error" hidden role="alert"></p><footer class="dialog-actions"><button id="history-cancel" class="secondary">Отмена</button><button id="history-save" class="primary">Сохранить изменения</button></footer>
+  </dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <dialog id="editor" class="editor"><form id="task-form" novalidate>
+    <header class="dialog-heading"><div><div class="eyebrow" id="editor-eyebrow">НОВАЯ ЗАДАЧА</div><h2 id="editor-title">Что нужно сделать?</h2></div><button type="button" id="editor-close" class="icon-button" aria-label="Закрыть карточку">×</button></header>
+    <div class="form-content">
+      <label>Название <span class="required">*</span><input id="task-title" name="title" placeholder="Например, подготовить предложение" autocomplete="off"></label>
+      <label>Описание<textarea id="task-description" name="description" rows="3" placeholder="Детали, которые важно не забыть"></textarea></label>
+      <div class="form-grid"><label>Тип<select id="task-type"><option value="work">Рабочая</option><option value="personal">Личная</option></select></label><label>Статус<select id="task-status"><option value="new">Новые</option><option value="in_progress">В работе</option><option value="waiting">Жду ответ</option><option value="control">На контроле</option></select></label></div>
+      <label class="check-label"><input type="checkbox" id="task-report-important"> Важное для отчёта</label>
+      <label class="check-label"><input type="checkbox" id="task-urgent"> Срочно <span>выделить на доске</span></label>
+      <div class="form-grid"><label>План<select id="task-placement"><option value="week">На неделю</option><option value="later">Позже</option></select></label><label id="task-week-label">Неделя<input type="date" id="task-week"><span class="field-hint">Любой день нужной недели</span></label></div>
+      <div class="form-grid"><label>Дедлайн<input type="date" id="task-due" min="1900-01-01" max="2100-12-31"></label><label>От кого жду / кого контролирую<input id="task-contact" placeholder="Имя или договорённость"></label></div>
+      <p id="due-warning" class="field-hint warning" hidden></p>
+      <div class="checklist-heading"><h3>Чек-лист</h3><span id="checklist-progress"></span></div><div id="checklist"></div>
+      <div class="checklist-add"><input id="checklist-new" aria-label="Новый пункт чек-листа" placeholder="Добавить небольшой шаг"><button type="button" id="checklist-add" class="secondary">Добавить</button></div>
+      <p id="form-error" class="form-error" role="alert" hidden></p><p id="editor-info" class="field-hint"></p>
+    </div>
+    <footer class="editor-footer"><span id="editor-save-status" role="status"></span><button type="button" class="secondary" id="task-complete" hidden>Выполнить</button><button type="submit" class="primary" id="task-submit">Создать задачу</button></footer>
+  </form></dialog>
+  <dialog id="confirm-dialog" class="small-dialog"><h2 id="confirm-title"></h2><p id="confirm-text"></p><div id="confirm-extra"></div><div class="dialog-actions"><button class="secondary" id="confirm-no">Отмена</button><button class="primary" id="confirm-yes">Подтвердить</button></div></dialog>
+  <dialog id="backup-dialog" class="small-dialog"><header class="dialog-heading"><h2>Резервная копия</h2><button class="icon-button" id="backup-close" aria-label="Закрыть резервную копию">×</button></header><p>Скачай все данные в один файл. Его можно восстановить здесь или перенести в другой браузер.</p><button class="primary full-width" id="export-backup">Скачать резервную копию</button><p class="field-hint" id="last-export"></p><hr><h3>Восстановить из файла</h3><p>Восстановление заменит текущие данные целиком. Сначала сохрани их копию.</p><label class="file-label">Выбрать JSON-файл<input type="file" id="import-file" accept=".json,application/json"></label><p id="import-error" class="form-error" role="alert" hidden></p></dialog>
+</body>
+</html>
