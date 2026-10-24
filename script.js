@@ -178,8 +178,8 @@
   function quarterStart(value){const d=date(value);d.setMonth(Math.floor(d.getMonth()/3)*3,1);return localDate(d);}
   function quarterLabel(value){const d=date(value);return `${Math.floor(d.getMonth()/3)+1} квартал ${d.getFullYear()}`;}
   function monthlyTotals(){return periodTotals(selectedMonth,addMonths(selectedMonth,1));}
-  function quarterReport(start){
-    const end=addMonths(start,3),latest=new Map(),moves=new Map();
+  function quarterReport(start,months=3){
+    const end=addMonths(start,months),latest=new Map(),moves=new Map();
     const weeks=state.weeks.filter(w=>w.boardId===state.selectedBoardId&&w.id<end&&shift(w.id,6)>=start).sort((a,b)=>a.id.localeCompare(b.id));
     for(const w of weeks)for(const r of w.rows){if(r.enteredLocalDate>=end)continue;latest.set(r.taskId,{...r,week:w.id});if(r.autoCarryOut||r.withdrawReason==='manual_move'){const item=moves.get(r.taskId)||{...r,week:w.id,transferWeeks:[]};Object.assign(item,r,{week:w.id});item.transferWeeks.push(`${w.id} (${r.autoCarryOut?'автоматически':'вручную'})`);moves.set(r.taskId,item);}}
     const done=periodRows(start,end),doneIds=new Set(done.map(r=>r.taskId));
@@ -190,12 +190,18 @@
     return {done:sort(done),pending:sort(pending),transferred:sort(transferred)};
   }
   function renderQuarter(){
-    const start=quarterStart(selectedMonth),box=$('month-view'),groups=quarterReport(start);box.replaceChildren();
+    const start=quarterStart(selectedMonth),box=$('month-view');box.replaceChildren();
     const actions=el('div','quarter-export');const done=button('Выгрузить выполненное в Excel','primary',()=>exportQuarter(start,false));done.id='quarter-export-done';const all=button('Выгрузить весь квартал','secondary',()=>exportQuarter(start,true));all.id='quarter-export-all';done.disabled=all.disabled=fatal;actions.append(done,all);box.append(actions);
-    const explanation=el('details','quarter-rules');explanation.append(el('summary','','Как считаются списки'));explanation.append(el('p','quarter-note','Выбранная доска и тип задач. Выполненные считаются один раз за квартал. «Не выполнено» - задачи плана без выполнения в этом квартале. «Перенесено» - история переносов из недель, пересекающихся с кварталом; задача могла быть затем выполнена. «Позже» без назначения недели сюда не входит.'));box.append(explanation);
-    for(const [key,title] of [['done','Выполнено'],['pending','Не выполнено'],['transferred','Перенесено']]){const details=el('details','summary-details quarter-list');details.dataset.quarterGroup=key;details.append(el('summary','',`${title} · ${groups[key].length}`));if(!groups[key].length)details.append(el('p','','Нет задач'));for(const r of groups[key]){const item=el('article','report-result');item.dataset.reportTask=r.taskId;item.append(el('strong','',r.title),el('span','card-meta',`${r.type==='work'?'Рабочее':'Личное'}${r.completedLocalDate?' · Выполнено '+fmt(r.completedLocalDate,{day:'numeric',month:'short',year:'numeric'}):''}${r.dueDate?' · Дедлайн '+r.dueDate:''}`));if(r.description)item.append(el('p','report-description',r.description));if(r.transferWeeks)item.append(el('p','',`Недели переноса: ${r.transferWeeks.join(', ')}`));if(r.reportImportant)item.append(el('span','report-star','★ Важное для отчёта'));details.append(item);}box.append(details);}
-    const notes=el('details','summary-details');notes.append(el('summary','','Заметки к отчёту'));for(let i=0;i<3;i++){const month=addMonths(start,i);notes.append(el('h3','',fmt(month,{month:'long',year:'numeric'})),monthNote(month));}box.append(notes);
+    const explanation=el('details','quarter-rules');explanation.append(el('summary','','Как считаются списки'));explanation.append(el('p','quarter-note','Выбранная доска и тип задач. В каждом месяце выполненные считаются один раз. «Не выполнено» - задачи плана без выполнения в этом месяце. «Перенесено» - история переносов из недель, пересекающихся с месяцем; задача могла быть затем выполнена. «Позже» без назначения недели сюда не входит.'));box.append(explanation);
+    for(let i=0;i<3;i++){
+      const month=addMonths(start,i),groups=quarterReport(month,1),panel=el('section','month-week quarter-month');panel.dataset.month=month;
+      panel.append(el('h3','',fmt(month,{month:'long',year:'numeric'})));
+      const exports=el('div','quarter-export');exports.append(button('Выполненное в Excel','secondary',()=>exportQuarter(month,false,1)),button('Весь месяц в Excel','secondary',()=>exportQuarter(month,true,1)));panel.append(exports);
+    for(const [key,title] of [['done','Выполнено'],['pending','Не выполнено'],['transferred','Перенесено']]){const details=el('details','summary-details quarter-list');details.dataset.quarterGroup=key;details.append(el('summary','',`${title} · ${groups[key].length}`));if(!groups[key].length)details.append(el('p','','Нет задач'));for(const r of groups[key]){const item=el('article','report-result');item.dataset.reportTask=r.taskId;item.append(el('strong','',r.title),el('span','card-meta',`${r.type==='work'?'Рабочее':'Личное'}${r.completedLocalDate?' · Выполнено '+fmt(r.completedLocalDate,{day:'numeric',month:'short',year:'numeric'}):''}${r.dueDate?' · Дедлайн '+r.dueDate:''}`));if(r.description)item.append(el('p','report-description',r.description));if(r.transferWeeks)item.append(el('p','',`Недели переноса: ${r.transferWeeks.join(', ')}`));if(r.reportImportant)item.append(el('span','report-star','★ Важное для отчёта'));details.append(item);}panel.append(details);}
+      const notes=el('details','summary-details');notes.append(el('summary','','Заметка месяца'),monthNote(month));panel.append(notes);box.append(panel);
+    }
   }
+
   // Minimal offline OOXML exporter: text cells never execute as spreadsheet formulas.
   function excelFile(sheets){
     const xml=s=>String(s??'').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\ufffe\uffff]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -211,13 +217,17 @@
     for(const f of files){const name=new TextEncoder().encode(f.name),sum=crc(f.data),h=head(30);h.v.setUint32(0,0x04034b50,true);h.v.setUint16(4,20,true);h.v.setUint32(14,sum,true);h.v.setUint32(18,f.data.length,true);h.v.setUint32(22,f.data.length,true);h.v.setUint16(26,name.length,true);chunks.push(h.bytes,name,f.data);const c=head(46);c.v.setUint32(0,0x02014b50,true);c.v.setUint16(4,20,true);c.v.setUint16(6,20,true);c.v.setUint32(16,sum,true);c.v.setUint32(20,f.data.length,true);c.v.setUint32(24,f.data.length,true);c.v.setUint16(28,name.length,true);c.v.setUint32(42,offset,true);central.push(c.bytes,name);offset+=30+name.length+f.data.length;size+=46+name.length;}
     const end=head(22);end.v.setUint32(0,0x06054b50,true);end.v.setUint16(8,files.length,true);end.v.setUint16(10,files.length,true);end.v.setUint32(12,size,true);end.v.setUint32(16,offset,true);return new Blob([...chunks,...central,end.bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
   }
-  function exportQuarter(start,all){
-    const groups=quarterReport(start),board=state.boards.find(b=>b.id===state.selectedBoardId),header=['Квартал','Доска','Задача','Описание / результат','Тип','Статус','Дата выполнения','Дедлайн','Важное для отчёта','Контакт','Недели переноса','ID задачи'];
-    const data=(key,name)=>({name,rows:[header,...groups[key].map(r=>[quarterLabel(start),board.name,r.title,r.description,r.type==='work'?'Рабочее':'Личное',state.settings.statusLabels[r.status],r.completedLocalDate||'',r.dueDate||'',r.reportImportant?'Да':'Нет',r.contact||'',(r.transferWeeks||[]).join('; '),r.taskId])]});
-    const sheets=[data('done','Выполнено')];if(all)sheets.push(data('pending','Не выполнено'),data('transferred','Перенесено'));
-    sheets.push({name:'Для отчёта',rows:[['Период','Доска','Раздел','Заметка'],[quarterLabel(start),board.name,'Правила','Выбранный тип: '+(filters.type==='all'?'все':filters.type==='work'?'рабочие':'личные')+'. Переносы относятся к неделям плана, пересекающимся с кварталом, и могут пересекаться с выполненными.'],...Array.from({length:3},(_,i)=>{const month=addMonths(start,i);return [month,board.name,'Итоги месяца',board.monthNotes?.find(n=>n.month===month)?.text||''];})]});
+  function exportQuarter(start,all,months=3){
+    const board=state.boards.find(b=>b.id===state.selectedBoardId),header=['Месяц','Доска','Задача','Описание / результат','Тип','Статус','Дата выполнения','Дедлайн','Важное для отчёта','Контакт','Недели переноса','ID задачи'],sheets=[];
+    for(let i=0;i<months;i++){
+      const month=addMonths(start,i),groups=quarterReport(month,1),prefix=month.slice(5,7)+' ';
+      const data=(key,name)=>({name:prefix+name,rows:[header,...groups[key].map(r=>[fmt(month,{month:'long',year:'numeric'}),board.name,r.title,r.description,r.type==='work'?'Рабочее':'Личное',state.settings.statusLabels[r.status],r.completedLocalDate||'',r.dueDate||'',r.reportImportant?'Да':'Нет',r.contact||'',(r.transferWeeks||[]).join('; '),r.taskId])]});
+      sheets.push(data('done','Выполнено'));if(all)sheets.push(data('pending','Не выполнено'),data('transferred','Перенесено'));
+    }
+    sheets.push({name:'Для отчёта',rows:[['Период','Доска','Раздел','Заметка'],[months===3?quarterLabel(start):start.slice(0,7),board.name,'Правила','Выбранный тип: '+(filters.type==='all'?'все':filters.type==='work'?'рабочие':'личные')+'. Задачи считаются отдельно по месяцам. Переносы относятся к неделям плана, пересекающимся с месяцем, и могут пересекаться с выполненными. Сумма месяцев не является числом уникальных задач квартала.'],...Array.from({length:months},(_,i)=>{const month=addMonths(start,i);return [month,board.name,'Итоги месяца',board.monthNotes?.find(n=>n.month===month)?.text||''];})]});
     if(noteDrafts.size)notify('Выгружаются сохранённые заметки. Несохранённые черновики в файл не входят.');
-    download(excelFile(sheets),`planning-${start.slice(0,4)}-Q${Math.floor(date(start).getMonth()/3)+1}-${all?'all':'done'}.xlsx`,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    const period=months===3?`${start.slice(0,4)}-Q${Math.floor(date(start).getMonth()/3)+1}`:start.slice(0,7);
+    download(excelFile(sheets),`planning-${period}-${all?'all':'done'}.xlsx`,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   }
 
   function monthNote(month){
