@@ -203,3 +203,10 @@ body.compact-meetings #meetings-open{display:none}
 @media(min-width:768px){#board{grid-template-columns:repeat(var(--column-count,4),minmax(230px,320px));align-items:start}}
 
 #board{min-height:0}
+
+/* Читаемые компактные карточки и прямое удаление колонок. */
+.task-card .card-title{display:block;width:100%;padding:2px 0;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:400;line-height:1.5;text-align:left;white-space:pre-wrap;word-break:normal;overflow-wrap:anywhere;letter-spacing:normal;margin:0 0 6px}
+#board .column-header{flex-wrap:nowrap}
+#board .column-header>span:not(.count){flex:1;min-width:0}
+#board .column-remove{flex:none;font-size:22px;margin-left:0}
+.task-card .card-top{margin-bottom:3px}
