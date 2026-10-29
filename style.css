@@ -183,3 +183,23 @@ body :is(p,li,label,input,select,textarea,button,summary,.deadline-badge,.priori
 @media(min-width:1200px){body.meetings-collapsed:not(.compact-meetings) .planner-layout{grid-template-columns:minmax(0,1fr)}body.meetings-collapsed:not(.compact-meetings) .planner-layout>.meetings-panel{display:none}}
 body.compact-meetings #meetings-open{display:none}
 .quarter-export{display:flex;flex-wrap:wrap;gap:12px}.quarter-list{margin-top:0}.quarter-list summary{font-size:18px;min-height:36px}.quarter-list .report-result{padding:16px 0}.quarter-list .report-description{white-space:pre-wrap}.quarter-list .card-meta{display:block;margin-top:8px}
+/* Compact cards and configurable columns. */
+#board{grid-template-columns:repeat(var(--column-count,4),minmax(230px,1fr))}
+#board .column{padding:8px}
+#board .column[data-drop^="custom-"]{--column:#84936c}
+#board .column-header{padding:6px 8px;margin-bottom:8px;gap:6px}
+#board .column-cards{min-height:40px}
+.task-card{padding:10px 11px 7px!important;margin-bottom:8px;border-radius:8px}
+.task-card .card-top{margin-bottom:5px;gap:6px}
+.task-card .type-chip{padding:3px 6px}
+.task-card .card-title{font-size:15px;line-height:1.4;margin-bottom:6px;min-height:0;font-weight:550}
+.task-card .card-meta:empty{display:none}
+.task-card .card-meta{gap:5px;line-height:1.4}
+.task-card .card-bottom{margin-top:6px;padding-top:3px}
+.task-card .complete-button{padding:2px 0}
+.column-manager-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+#column-add-form{display:grid;gap:12px;margin-top:20px}#columns-error{color:#a33240}
+#columns-open{margin-bottom:8px}
+@media(min-width:768px){#board{grid-template-columns:repeat(var(--column-count,4),minmax(230px,320px));align-items:start}}
+
+#board{min-height:0}
